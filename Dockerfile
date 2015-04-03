@@ -29,10 +29,13 @@ RUN apt-get install -y \
     curl
 
 # Add the latest version of gateway, in the future this should pull from a deb installer
-RUN curl -L -O http://search.maven.org/remotecontent?filepath=org/kaazing/gateway.distribution/5.0.1.20/gateway.distribution-5.0.1.20.tar.gz
-RUN tar -xvf gateway.distribution-5.0.1.20.tar.gz
-RUN rm gateway.distribution-5.0.1.20.tar.gz
+RUN curl -L -o gateway.tar.gz https://oss.sonatype.org/content/repositories/releases/org/kaazing/gateway.distribution/5.0.1.21/gateway.distribution-5.0.1.21.tar.gz
+RUN tar -xvf gateway.tar.gz
+RUN rm gateway.tar.gz
 RUN mv kaazing-gateway-* kaazing-gateway
+
+# Add Log4J settings to redirect to STDOUT
+ADD log4j-config.xml /kaazing-gateway/conf/
 
 # Define mountable directories
 VOLUME ["kaazing-gateway/"]
