@@ -25,8 +25,7 @@ RUN apt-get -qq update
 RUN apt-get -qqy install zulu-8=8.6.0.1
 
 # Install utilities
-RUN apt-get install -y \
-    curl
+RUN apt-get install -y curl
 
 # Add the latest version of gateway, in the future this should pull from a deb installer
 RUN curl -L -o gateway.tar.gz https://oss.sonatype.org/content/repositories/releases/org/kaazing/gateway.distribution/5.0.1.21/gateway.distribution-5.0.1.21.tar.gz
