@@ -16,8 +16,6 @@ This repository contains **Dockerfile** of [Kaazing Gateway](http://kaazing.org/
 
    (alternatively, you can build an image from Dockerfile: `docker build -t="kaazing/gateway" github.com/kaazing/gateway.docker`)
 
-    TODO: PUBLIC FIRST BUILD and check links/steps
-
 ### Usage
 
     docker run -d -h <hostname> -p 8000:8000 kaazing/gateway
