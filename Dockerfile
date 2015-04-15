@@ -36,11 +36,8 @@ RUN mv kaazing-gateway-* kaazing-gateway
 # Add Log4J settings to redirect to STDOUT
 ADD log4j-config.xml /kaazing-gateway/conf/
 
-# Define mountable directories
-VOLUME ["kaazing-gateway/"]
-
 # Expose Ports
-expose 8000
+EXPOSE 8000
 
 # Set Working Dir
 WORKDIR kaazing-gateway
