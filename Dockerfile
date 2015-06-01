@@ -1,6 +1,8 @@
 # Pull base image
 FROM java:openjdk-8u45-jdk
 
+MAINTAINER Kaazing "support@kaazing.com"
+
 # Install utilities
 RUN apt-get install -y curl
 
@@ -11,7 +13,7 @@ RUN rm gateway.tar.gz
 RUN mv kaazing-gateway-* kaazing-gateway
 
 # Add Log4J settings to redirect to STDOUT
-ADD log4j-config.xml /kaazing-gateway/conf/
+COPY log4j-config.xml /kaazing-gateway/conf/
 
 # Expose Ports
 EXPOSE 8000
