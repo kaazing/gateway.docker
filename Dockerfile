@@ -1,16 +1,10 @@
 # Pull base image
-FROM ubuntu:14.04
-
-# Install Zulu Open JDK
-RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 0x219BD9C9
-RUN echo "deb http://repos.azulsystems.com/ubuntu `lsb_release -cs` main" >> /etc/apt/sources.list.d/zulu.list
-RUN apt-get -qq update
-RUN apt-get -qqy install zulu-8=8.6.0.1
+FROM java:openjdk-8u45-jdk
 
 # Install utilities
 RUN apt-get install -y curl
 
-# Add the latest version of gateway, in the future this should pull from a deb installer
+# Get the latest stable version of gateway
 RUN curl -L -o gateway.tar.gz https://oss.sonatype.org/content/repositories/releases/org/kaazing/gateway.distribution/5.0.1.21/gateway.distribution-5.0.1.21.tar.gz
 RUN tar -xvf gateway.tar.gz
 RUN rm gateway.tar.gz
