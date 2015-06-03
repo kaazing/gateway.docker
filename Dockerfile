@@ -1,7 +1,7 @@
 # Pull base image
 FROM java:openjdk-8u45-jdk
 
-MAINTAINER Kaazing "support@kaazing.com"
+MAINTAINER Kaazing Docker Maintainers, contact via github issues: https://github.com/kaazing/gateway.docker/issues
 
 # Install utilities
 RUN apt-get install -y curl
