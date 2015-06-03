@@ -131,8 +131,8 @@
     </logger>
 
     <root>
-        <priority value="warn"/>
-        <appender-ref ref="STDOUT_ERROR"/>        
+        <priority value="info"/>
+        <appender-ref ref="STDOUT"/>        
         <appender-ref ref="ErrorFile"/>        
     </root>
 
