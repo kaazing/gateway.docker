@@ -14,7 +14,7 @@ This repository contains **Dockerfile** of [Kaazing Gateway](http://kaazing.org/
 
 2. Download build from public [Docker Hub Registry](https://registry.hub.docker.com/repos/kaazing/): `docker pull kaazing/gateway`
 
-   (alternatively, you can build an image from Dockerfile: `docker build -t="kaazing/gateway" .)
+   (alternatively, you can build an image from Dockerfile: `docker build -t="kaazing/gateway" .`)
 
 ### Usage
 

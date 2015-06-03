@@ -15,6 +15,9 @@ RUN mv kaazing-gateway-* kaazing-gateway
 # Add Log4J settings to redirect to STDOUT
 COPY log4j-config.xml /kaazing-gateway/conf/
 
+# Copy gateway.start
+COPY gateway.start /kaazing-gateway/bin/
+
 # Expose Ports
 EXPOSE 8000
 
