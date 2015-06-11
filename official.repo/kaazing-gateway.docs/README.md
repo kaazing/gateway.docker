@@ -4,7 +4,7 @@
 
 For more information about this image and its history, please see the [relevant manifest file (`library/kaazing-gateway`)](https://github.com/docker-library/official-images/blob/master/library/kaazing-gateway) in the [`docker-library/official-images` GitHub repo](https://github.com/docker-library/official-images).
 
-# What is the Kaazing Gateway?
+# What is the KAAZING Gateway?
 
 The Kaazing Gateway is a network gateway created to provide a single access point for real-time web based protocols that supports load balancing, clustering, and security management. It is designed to provide scalable and secure bidirectional event-based communication over the web; on every platform, browser, and device.
 
@@ -30,7 +30,7 @@ To launch a container with a specific configuration you can do the following:
 
 For information on the syntax of the Kaazing Gateway configuration files, see [the official documentation](http://developer.kaazing.com/documentation/5.0/index.html) (specifically the [Configuration Guide](http://developer.kaazing.com/documentation/5.0/admin-reference/r_conf_elementindex.html)).
 
-If you wish to adapt the default configuration, use something like the following to copy it from a running Kaazing Gateway container:
+If you wish to adapt the default Gateway configuration file, you can use a command such as the following to copy the file from a running Kaazing Gateway container:
 
 	docker cp some-kaazing:/conf/gateway-config-minimal.xml /some/gateway-config.xml
 
@@ -63,7 +63,7 @@ You can also reach many of the official image maintainers via the `#docker-libra
 
 ## Contributing
 
-You are invited to contribute new features, fixes, or updates, large or small; we are always thrilled to receive pull requests, and do our best to process them as fast as we can.
+You are invited to contribute new features, fixes, or updates, large or small. We are always thrilled to receive pull requests, and do our best to process them as fast as we can.
 
 Before you start to code, we recommend discussing your plans through a [GitHub issue](https://github.com/kaazing/gateway.docker/issues), especially for more ambitious contributions. This gives other contributors a chance to point you in the right direction, give you feedback on your design, and help you find out if someone else is working on the same thing.
 
