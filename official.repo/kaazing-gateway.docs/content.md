@@ -1,4 +1,4 @@
-# What is the Kaazing Gateway?
+# What is the KAAZING Gateway?
 
 The Kaazing Gateway is a network gateway created to provide a single access point for real-time web based protocols that supports load balancing, clustering, and security management. It is designed to provide scalable and secure bidirectional event-based communication over the web; on every platform, browser, and device.
 
@@ -24,7 +24,7 @@ To launch a container with a specific configuration you can do the following:
 
 For information on the syntax of the Kaazing Gateway configuration files, see [the official documentation](http://developer.kaazing.com/documentation/5.0/index.html) (specifically the [Configuration Guide](http://developer.kaazing.com/documentation/5.0/admin-reference/r_conf_elementindex.html)).
 
-If you wish to adapt the default configuration, use something like the following to copy it from a running Kaazing Gateway container:
+If you wish to adapt the default Gateway configuration file, you can use a command such as the following to copy the file from a running Kaazing Gateway container:
 
 	docker cp some-kaazing:/conf/gateway-config-minimal.xml /some/gateway-config.xml
 
