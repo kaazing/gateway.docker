@@ -3,13 +3,13 @@ FROM java:openjdk-8-jdk
 
 MAINTAINER Kaazing Docker Maintainers, contact via github issues: https://github.com/kaazing/gateway.docker/issues
 
-# pub   2048R/24BD9545 2014-07-18 [expires: 2018-07-18]
-#       Key fingerprint = 409E F88E 5386 FE7C 68FC  0B77 B795 92BE 24BD 9545
-# uid                  David Witherspoon <dpwspoon@gmail.com>
-# sub   2048R/9B801C59 2014-07-18 [expires: 2018-07-18]
-RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys 409EF88E5386FE7C68FC0B77B79592BE24BD9545
+# pub   2048R/385B4D59 2015-07-01 [expires: 2017-12-08]
+#       Key fingerprint = F8F4 B66E 022A 4668 E532  DAC0 3AA0 B82C 385B 4D59
+# uid                  Kaazing build <build@kaazing.com>
+# sub   2048R/26C0219B 2015-07-01 [expires: 2017-12-08]
+RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys F8F4B66E022A4668E532DAC03AA0B82C385B4D59
 
-ENV KAAZING_GATEWAY_VERSION 5.0.1.21
+ENV KAAZING_GATEWAY_VERSION 5.0.1.38
 ENV KAAZING_GATEWAY_URL https://oss.sonatype.org/content/repositories/releases/org/kaazing/gateway.distribution/${KAAZING_GATEWAY_VERSION}/gateway.distribution-${KAAZING_GATEWAY_VERSION}.tar.gz
 
 # Set Working Dir
