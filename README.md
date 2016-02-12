@@ -42,7 +42,9 @@ The following illustrates the ambassador pattern running between containers on t
 ##### On docker host 2 (Client)
 
    ## Sets up ambassador 
-   docker run --rm -i -t --name ambassador-client kaazing/docker-gateway start ambassador-client -service echo 8000
+   docker run --rm -i -t --name ambassador-client kaazing/docker-gateway start ambassador-client <ambassador-server-host> -service echo 8000
+
+   Where <ambassador-server-host> is the IP address of the host running the ambassador-server.
 
    ## Runs up client
    docker run --rm -i -t --link ambassador-client:ambassador-client multicloud/netcat ambassador 8000
