@@ -1,7 +1,7 @@
 ## Gateway Docker
 
 ### About this Project
-This repository contains **Dockerfile** of [Kaazing Gateway](http://kaazing.org/) for [Docker](https://www.docker.com/)'s automated build published to the public [Docker Hub Registry](https://registry.hub.docker.com/repos/kaazing/).
+This repository contains **Dockerfile** of [Kaazing Gateway](http://kaazing.org/) for [Docker](https://www.docker.com/)'s automated build published to the public [Docker Hub Registry](https://hub.docker.com/_/kaazing-gateway/).
 
 ### Base Docker Image
 
@@ -16,34 +16,47 @@ This repository contains **Dockerfile** of [Kaazing Gateway](http://kaazing.org/
 
    (alternatively, you can build an image from Dockerfile: `docker build -t="kaazing/gateway" .`)
 
+### Build locally
+```bash
+    docker build -t kaazing-gateway-dev .
+```
+
 ### Usage
 
-    docker run -h <hostname> -p 8000:8000 kaazing/gateway
-
-#### Attach persistent/shared directories
-
-    docker run -p 8000:8000 -v <gateway-home-dir>:/kaazing-gateway kaazing/gateway
+```bash
+    docker run -h <hostname> -p 8000:8000 kaazing-gateway-dev
+```
 
 After few seconds, open `http://<hostname>:8000` to see the welcome page.  (Note: you may need to add hostname to etc/hosts from host machine, the ip address may be the boot2docker ip, or the ip of the docker host)
 
-#### Ambassador Pattern 
-   
-The following illustrates the ambassador pattern running between containers on two different hosts. It does not have trusted certs.
+#### Attach persistent/shared directories to override the config
+
+```bash
+    docker run -p 8000:8000 -v <gateway-home-dir>:/kaazing-gateway kaazing-gateway-dev
+```
+
+#### Ambassador Pattern
+
+The following illustrates the [ambassador pattern](https://docs.docker.com/engine/admin/ambassador_pattern_linking/) running between containers on two different hosts. It does not have trusted certs.
 
 ##### On docker host 1 (Server)
 
+```bash
    ## Sets up backend
-   docker run --rm -i -t --name backend --hostname backend kaazing/docker-gateway ./bin/gateway.start --config conf/echo-config.xml
+   docker run -d --name backend --hostname backend kaazing-gateway-dev ./bin/gateway.start --config conf/echo-config.xml
 
 
    ## Sets up ambassador
-   docker run --rm -i -t --name ambassador-server --link backend:backend -p 443:443 -p 8000:8000 kaazing/docker-gateway start ambassador-server -service echo backend:8000
+   docker run -d --name ambassador-server --link backend:backend -p 443:443 kaazing-gateway-dev start ambassador-server -service echo backend:8000
+```
 
 ##### On docker host 2 (Client)
 
+```bash
    ## Sets up ambassador 
-   docker run --rm -i -t --name ambassador-client kaazing/docker-gateway start ambassador-client -service echo 8000
+   docker run -d --name ambassador-client kaazing-gateway-dev start ambassador-client ${ip-of-server-ambassador} -service echo 8000
 
    ## Runs up client
-   docker run --rm -i -t --link ambassador-client:ambassador-client multicloud/netcat ambassador 8000
+   docker run --rm -i -t --link ambassador-client:ambassador-client multicloud/netcat ambassador-client 8000
+```
 
