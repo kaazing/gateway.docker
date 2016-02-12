@@ -36,14 +36,10 @@ ENV PATH=$PATH:/kaazing-gateway/bin
 EXPOSE 8000
 
 # Adding support for ambassador-pattern
-ADD bin/start bin/start
-ADD bin/tools bin/tools
+ADD bin/gateway.start bin/gateway.start
 ADD conf/services conf/services
 ADD conf/echo-config.xml conf/echo-config.xml
 #
-RUN apt-get -y update
-RUN apt-get -y install dnsutils net-tools
-#
 # Define default command
-CMD ["gateway.start"]
+ENTRYPOINT ["gateway.start"]
 
