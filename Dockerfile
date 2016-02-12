@@ -39,7 +39,6 @@ EXPOSE 8000
 ADD bin/start bin/start
 ADD bin/tools bin/tools
 ADD conf/services conf/services
-ADD conf/log4j-config-verbose.xml conf/log4j-config.xml
 ADD conf/echo-config.xml conf/echo-config.xml
 #
 RUN apt-get -y update
