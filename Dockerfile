@@ -9,7 +9,7 @@ MAINTAINER Kaazing Docker Maintainers, contact via github issues: https://github
 # sub   2048R/26C0219B 2015-07-01 [expires: 2017-12-08]
 RUN gpg --keyserver ha.pool.sks-keyservers.net --recv-keys F8F4B66E022A4668E532DAC03AA0B82C385B4D59
 
-ENV KAAZING_GATEWAY_VERSION 5.0.1.38
+ENV KAAZING_GATEWAY_VERSION 5.0.1.46
 ENV KAAZING_GATEWAY_URL https://oss.sonatype.org/content/repositories/releases/org/kaazing/gateway.distribution/${KAAZING_GATEWAY_VERSION}/gateway.distribution-${KAAZING_GATEWAY_VERSION}.tar.gz
 
 # Set Working Dir
@@ -35,6 +35,15 @@ ENV PATH=$PATH:/kaazing-gateway/bin
 # Expose Ports
 EXPOSE 8000
 
+# Adding support for ambassador-pattern
+ADD bin/start bin/start
+ADD bin/tools bin/tools
+ADD conf/services conf/services
+ADD conf/echo-config.xml conf/echo-config.xml
+#
+RUN apt-get -y update
+RUN apt-get -y install dnsutils net-tools
+#
 # Define default command
 CMD ["gateway.start"]
 

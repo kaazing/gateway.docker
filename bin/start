@@ -1,0 +1,209 @@
+#!/bin/bash
+#
+#####################################################################
+# Script to configure the Kaazing KWIC Gateway on a Docker container
+# in one of three modes:
+#
+#   - generic Kaazing GW   
+#   - ambassador server
+#   - ambassador client
+#
+# Author: arnaldo.roldan@kaazing.com
+# Last Updated: 02.11.16
+#####################################################################
+#
+GWTYPE="kgw"
+OPTDIR="/opt/kaazing"
+GWDIR="/kaazing-gateway"
+CONFDIR="${GWDIR}/conf"
+BINDIR="${GWDIR}/bin"
+TOOLSDIR="${BINDIR}/tools"
+KTOOLSDIR="${TOOLSDIR}/keytools"
+SERVICESDIR="${CONFDIR}/services"
+#
+CONFFILE="${CONFDIR}/gateway-config.xml"
+TSTOREFILE="truststore.db"
+HEADERFILE="${SERVICESDIR}/kwic-header.conf"
+FOOTERFILE="${SERVICESDIR}/kwic-footer.conf"
+STARTSCRIPT="${BINDIR}/gateway.start"
+GENSTORESCMD="${KTOOLSDIR}/genstores.sh"
+#	
+MYCLOUD="private"
+MYPRIVIP=
+MYPUBIP=
+MYNAME=`hostname`
+MYLOCALNAME='localgw'
+MYALIAS="${MYNAME}-private-net"
+MYFQDN="localhost"
+MYPRIVDNS="localgw"
+MYHOST=${MYPRIVDNS}
+ALTDNS=${MYPRIVDNS}
+#
+#####################################################################
+# Determine our IP addresses
+#####################################################################
+get_ipaddrs()
+{
+   MYPRIVIP=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
+   MYPUBIP=`dig +short myip.opendns.com @resolver1.opendns.com`
+}
+
+#####################################################################
+# Determine which cloud type we are running in
+#####################################################################
+check_cloudtype()
+{
+RESOLVER=`grep search /etc/resolv.conf | cut -d' ' -f2 | awk -F. '{printf "%s.%s\n", $(NF-1), $(NF)}'`
+
+   if [ "${RESOLVER}" = "cloudapp.net" ] && [ -d /var/lib/waagent ] # Azure
+   then
+
+      echo "Looks like we are running on Azure ..."
+      MYCLOUD="azure"
+      MYNAME=`hostname`
+      MYALIAS='${MYNAME}-cloudapp-net'
+      MYFQDN="${MYNAME}.cloudapp.net"
+      MYHOST=${MYPUBIP}
+      ALTDNS=${MYFQDN}
+
+   elif [ "${RESOLVER}" = "compute.internal" ] || [ "${RESOLVER}" = "ec2.internal" ] # AWS
+   then
+
+      echo "Looks like we are running on AWS ..."
+      MYCLOUD="aws" ;
+      MYNAME=`curl -s --connect-timeout 3 http://169.254.169.254/latest/meta-data/local-hostname | awk -F. '{print $1}'`
+      MYALIAS="${MYNAME}-amazonaws-com"
+      MYFQDN=`curl -s --connect-timeout 3 http://169.254.169.254/latest/meta-data/public-hostname`
+      MYHOST=${MYPUBIP}
+      ALTDNS=${MYFQDN}
+
+   else
+      echo "Looks like we are running on Private cloud ..."
+      MYHOST=${MYPRIVIP}
+   fi
+}
+
+#####################################################################
+# Build a truststore using self signed certificates
+#####################################################################
+gen_store()
+{
+   # build the truststore
+   ${GENSTORESCMD} ${MYNAME} ${MYALIAS} ${MYFQDN} ${MYLOCALNAME} ${MYPRIVIP} ${MYPUBIP} ${ALTDNS} 2>&1 /dev/null
+   [ $? -ne 0 ] && { echo "ALERT: Unable to genarate truststore. Please try again." ; cleanup ; }
+
+}
+
+#####################################################################
+# Add services to configuration file based on user input
+#####################################################################
+config_services()
+{
+   cd ${SERVICESDIR}
+   echo ""
+
+   cat /dev/null > $CONFFILE
+
+   cat $HEADERFILE >> $CONFFILE
+
+   maxdefs=${#SERVICEDEF[@]} ; ((maxdefs--))
+
+   for i in $(seq 0 ${maxdefs})
+   do
+      service=${SERVICENAME[$i]}
+      definition=${SERVICEDEF[$i]}
+
+      case $GWTYPE  in
+         server) IFS=':' read hostip hostport <<< ${definition}
+cat >> $CONFFILE <<EEOF
+ <service>
+    <name>$service proxy</name>
+    <accept>ws://\${ambassador.server}:\${gateway.ssl.port}/${service}-proxy</accept>
+    <connect>tcp://${hostip}:${hostport}</connect>
+
+    <type>proxy</type>
+
+    <accept-options>
+      <tcp.bind>\${gateway.ssl.port}</tcp.bind>
+    </accept-options>
+ </service>
+EEOF
+                 ;;
+         client)
+cat >> $CONFFILE <<EEOF
+ <service>
+    <name>$service proxy</name>
+    <accept>tcp://server:${definition}/</accept>
+    <connect>ws://\${ambassador.server}:\${gateway.ssl.port}/${service}-proxy</connect>
+
+    <type>proxy</type>
+
+    <accept-options>
+      <tcp.bind>${definition}</tcp.bind>
+    </accept-options>
+
+    <connect-options>
+      <http.transport>tcp://${AMBSERVERIP}:\${gateway.ssl.port}</http.transport>
+    </connect-options>
+ </service>
+EEOF
+                 ;;
+      esac
+   done
+   
+   echo "" >> $CONFFILE
+
+   cat $FOOTERFILE >> $CONFFILE
+}
+
+#####################################################################
+# Fire up the Gateway
+#####################################################################
+start_gw()
+{
+   /kaazing-gateway/bin/gateway.start "$@"
+}
+
+#####################################################################
+# Perform any cleanup tasks
+#####################################################################
+cleanup()
+{
+    exit 1
+}
+
+#####################################################################
+# Main - Get the ball rolling
+#####################################################################
+# Trap signals and do cleanup
+#
+trap cleanup 1 2 3
+#
+# Process user specified options
+sindex=0
+GWOPTS="$@"
+
+while [ $# -gt 0 ]
+do
+   case "$1" in
+         generate-certs) get_ipaddrs ; check_cloudtype ; gen_store ; exit ;;
+      ambassador-client) GWTYPE="client" ; AMBSERVERIP=$2 ; GWOPTS="" ; shift ;;
+      ambassador-server) GWTYPE="server" ; GWOPTS="" ;;
+               -service) SERVICENAME[$sindex]=$2 ; SERVICEDEF[$sindex]=$3 ; ((sindex++)) ; GWOPTS="" ; shift 2 ;;
+                      *) ;;
+   esac
+   shift
+done
+
+case $GWTYPE in
+   client|server) [ $sindex -le 0 ] && { echo "Please define at least one service" ; exit ; } 
+                  config_services    # generate configuration file based on user input
+                  ;;
+               *) ;;
+esac
+
+start_gw $GWOPTS     # fire up the gateway
+
+#####################################################################
+# EOF
+#####################################################################
