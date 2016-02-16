@@ -1,16 +1,28 @@
 #!/bin/bash
 #
-#####################################################################
-# Script to configure the Kaazing KWIC Gateway on a Docker container
-# in one of three modes:
+# Copyright (c) 2007-2014 Kaazing Corporation. All rights reserved.
 #
-#   - generic Kaazing GW   
-#   - ambassador server
-#   - ambassador client
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
 #
-# Author: arnaldo.roldan@kaazing.com
-# Last Updated: 02.11.16
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+#
+#
 #####################################################################
+#
+PRG="$0"
 #
 GWTYPE="kgw"
 OPTDIR="/opt/kaazing"
@@ -26,7 +38,6 @@ TSTOREFILE="truststore.db"
 HEADERFILE="${SERVICESDIR}/kwic-header.conf"
 FOOTERFILE="${SERVICESDIR}/kwic-footer.conf"
 STARTSCRIPT="${BINDIR}/gateway.start"
-GENSTORESCMD="${KTOOLSDIR}/genstores.sh"
 #	
 MYCLOUD="private"
 MYPRIVIP=
@@ -39,61 +50,6 @@ MYPRIVDNS="localgw"
 MYHOST=${MYPRIVDNS}
 ALTDNS=${MYPRIVDNS}
 #
-#####################################################################
-# Determine our IP addresses
-#####################################################################
-get_ipaddrs()
-{
-   MYPRIVIP=$(/sbin/ip -o -4 addr list eth0 | awk '{print $4}' | cut -d/ -f1)
-   MYPUBIP=`dig +short myip.opendns.com @resolver1.opendns.com`
-}
-
-#####################################################################
-# Determine which cloud type we are running in
-#####################################################################
-check_cloudtype()
-{
-RESOLVER=`grep search /etc/resolv.conf | cut -d' ' -f2 | awk -F. '{printf "%s.%s\n", $(NF-1), $(NF)}'`
-
-   if [ "${RESOLVER}" = "cloudapp.net" ] && [ -d /var/lib/waagent ] # Azure
-   then
-
-      echo "Looks like we are running on Azure ..."
-      MYCLOUD="azure"
-      MYNAME=`hostname`
-      MYALIAS='${MYNAME}-cloudapp-net'
-      MYFQDN="${MYNAME}.cloudapp.net"
-      MYHOST=${MYPUBIP}
-      ALTDNS=${MYFQDN}
-
-   elif [ "${RESOLVER}" = "compute.internal" ] || [ "${RESOLVER}" = "ec2.internal" ] # AWS
-   then
-
-      echo "Looks like we are running on AWS ..."
-      MYCLOUD="aws" ;
-      MYNAME=`curl -s --connect-timeout 3 http://169.254.169.254/latest/meta-data/local-hostname | awk -F. '{print $1}'`
-      MYALIAS="${MYNAME}-amazonaws-com"
-      MYFQDN=`curl -s --connect-timeout 3 http://169.254.169.254/latest/meta-data/public-hostname`
-      MYHOST=${MYPUBIP}
-      ALTDNS=${MYFQDN}
-
-   else
-      echo "Looks like we are running on Private cloud ..."
-      MYHOST=${MYPRIVIP}
-   fi
-}
-
-#####################################################################
-# Build a truststore using self signed certificates
-#####################################################################
-gen_store()
-{
-   # build the truststore
-   ${GENSTORESCMD} ${MYNAME} ${MYALIAS} ${MYFQDN} ${MYLOCALNAME} ${MYPRIVIP} ${MYPUBIP} ${ALTDNS} 2>&1 /dev/null
-   [ $? -ne 0 ] && { echo "ALERT: Unable to genarate truststore. Please try again." ; cleanup ; }
-
-}
-
 #####################################################################
 # Add services to configuration file based on user input
 #####################################################################
@@ -161,8 +117,36 @@ EEOF
 #####################################################################
 start_gw()
 {
-   /kaazing-gateway/bin/gateway.start "$@"
+
+   while [ -h "$PRG" ] ; do
+     ls=`ls -ld "$PRG"`
+     link=`expr "$ls" : '.*-> \(.*\)$'`
+     if expr "$link" : '/.*' > /dev/null; then
+       PRG="$link"
+     else
+       PRG=`dirname "$PRG"`/"$link"
+     fi
+   done
+
+   PRGDIR=`dirname "$PRG"`
+
+   # A temporary variable for the location of the gateway installation,
+   # to allow determining the conf and lib subdirectories (assumed to 
+   # be siblings to this script's 'bin' directory).
+   GW_HOME=`cd "$PRGDIR/.." ; pwd`
+   
+   # You can define various Java system properties by setting the value
+   # of the GATEWAY_OPTS environment variable before calling this script.
+   # The script itself should not be changed. For example, the setting
+   # below sets the Java maximum memory to 512MB.
+   [ -z "$GATEWAY_OPTS" ] && GATEWAY_OPTS="-Xmx512m"
+   
+   # Add a directory for management support
+   JAVA_LIBRARY_PATH="$GW_HOME/lib/sigar"
+
+   exec java $GATEWAY_OPTS -Djava.library.path="$JAVA_LIBRARY_PATH" -XX:+HeapDumpOnOutOfMemoryError -cp "$GW_HOME/lib/*" org.kaazing.gateway.server.Main $*
 }
+
 
 #####################################################################
 # Perform any cleanup tasks
@@ -186,7 +170,6 @@ GWOPTS="$@"
 while [ $# -gt 0 ]
 do
    case "$1" in
-         generate-certs) get_ipaddrs ; check_cloudtype ; gen_store ; exit ;;
       ambassador-client) GWTYPE="client" ; AMBSERVERIP=$2 ; GWOPTS="" ; shift ;;
       ambassador-server) GWTYPE="server" ; GWOPTS="" ;;
                -service) SERVICENAME[$sindex]=$2 ; SERVICEDEF[$sindex]=$3 ; ((sindex++)) ; GWOPTS="" ; shift 2 ;;
@@ -196,7 +179,7 @@ do
 done
 
 case $GWTYPE in
-   client|server) [ $sindex -le 0 ] && { echo "Please define at least one service" ; exit ; } 
+   client|server) [ $sindex -le 0 ] && { echo "Missing ambassador-server-host or at least one -service definition." ; exit ; } 
                   config_services    # generate configuration file based on user input
                   ;;
                *) ;;
