@@ -1,8 +1,7 @@
 # Change Log
 
-## [Unreleased](https://github.com/kaazing/gateway.docker/tree/HEAD)
-
-[Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.1.0...HEAD)
+## [5.1.1](https://github.com/kaazing/gateway.docker/tree/5.1.1) (2016-06-29)
+[Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.1.0...5.1.1)
 
 **Merged pull requests:**
 
