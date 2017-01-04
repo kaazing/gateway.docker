@@ -1,5 +1,5 @@
 # Pull base image
-FROM java:openjdk-8-jre
+FROM openjdk:8-jre
 
 MAINTAINER Kaazing Docker Maintainers, contact via github issues: https://github.com/kaazing/gateway.docker/issues
 
