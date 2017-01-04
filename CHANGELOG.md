@@ -1,5 +1,19 @@
 # Change Log
 
+## [5.3.2](https://github.com/kaazing/gateway.docker/tree/5.3.2) (2017-01-04)
+[Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.2.5...5.3.2)
+
+**Closed issues:**
+
+- Gateway 5.0.2 no longer has git installed by default so we will need to change tutorials to not use git [\#14](https://github.com/kaazing/gateway.docker/issues/14)
+
+**Merged pull requests:**
+
+- Convert from "java" \(deprecated as of 2016-12-31\) to "openjdk" [\#15](https://github.com/kaazing/gateway.docker/pull/15) ([tianon](https://github.com/tianon))
+
+## [5.2.5](https://github.com/kaazing/gateway.docker/tree/5.2.5) (2016-10-26)
+[Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.1.1...5.2.5)
+
 ## [5.1.1](https://github.com/kaazing/gateway.docker/tree/5.1.1) (2016-06-29)
 [Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.1.0...5.1.1)
 
