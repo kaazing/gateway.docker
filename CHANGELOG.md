@@ -1,11 +1,14 @@
 # Change Log
 
-## [5.3.2](https://github.com/kaazing/gateway.docker/tree/5.3.2) (2017-01-04)
-[Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.2.5...5.3.2)
+## [5.4.1-RC001](https://github.com/kaazing/gateway.docker/tree/5.4.1-RC001) (2017-02-24)
+[Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.3.2...5.4.1-RC001)
 
 **Closed issues:**
 
 - Gateway 5.0.2 no longer has git installed by default so we will need to change tutorials to not use git [\#14](https://github.com/kaazing/gateway.docker/issues/14)
+
+## [5.3.2](https://github.com/kaazing/gateway.docker/tree/5.3.2) (2017-01-04)
+[Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.2.5...5.3.2)
 
 **Merged pull requests:**
 
