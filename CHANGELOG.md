@@ -1,7 +1,7 @@
 # Change Log
 
-## [5.4.1-RC001](https://github.com/kaazing/gateway.docker/tree/5.4.1-RC001) (2017-02-24)
-[Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.3.2...5.4.1-RC001)
+## [5.4.1](https://github.com/kaazing/gateway.docker/tree/5.4.1) (2017-02-24)
+[Full Changelog](https://github.com/kaazing/gateway.docker/compare/5.3.2...5.4.1)
 
 **Closed issues:**
 
